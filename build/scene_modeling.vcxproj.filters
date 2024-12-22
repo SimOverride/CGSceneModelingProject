@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\fullscreen_quad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\glsl_program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture_cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\render_flag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\star.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\bounding_box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\frame_rate_indicator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\fullscreen_quad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\gl_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\glsl_program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\sampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\texture_cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\uniform_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\base\vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\render_flag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Workbench_Local\CG\CGSceneModelingProject\src\star.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Workbench_Local\CG\CGSceneModelingProject\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{260034FE-CC2E-357F-9F96-B21AB31B88BE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9BE1ED0D-2493-3BE5-98FC-6B75E74787B1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

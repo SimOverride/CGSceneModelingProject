@@ -1,0 +1,278 @@
+[
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\application.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\application.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/application.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/application.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\camera.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\camera.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/camera.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/camera.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\framebuffer.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\framebuffer.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/framebuffer.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/framebuffer.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\fullscreen_quad.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\fullscreen_quad.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/fullscreen_quad.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/fullscreen_quad.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\glsl_program.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\glsl_program.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/glsl_program.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/glsl_program.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\model.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\model.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/model.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/model.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\skybox.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\skybox.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/skybox.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/skybox.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\texture.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\texture.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/texture.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/texture.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\texture2d.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\texture2d.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/texture2d.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/texture2d.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\texture_cubemap.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\texture_cubemap.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/texture_cubemap.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/texture_cubemap.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\transform.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\transform.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/transform.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/transform.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\base\\utils.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\base\\utils.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/base/utils.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/base/utils.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\main.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\main.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/main.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/main.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\render_flag.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\render_flag.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/render_flag.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/render_flag.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/scene_modeling.dir/includes_CXX.rsp -g -o CMakeFiles\\scene_modeling.dir\\src\\star.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\src\\star.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/src/star.cpp",
+  "output": "CMakeFiles/scene_modeling.dir/src/star.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glad",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe  @CMakeFiles/glad.dir/includes_C.rsp -g -o CMakeFiles\\glad.dir\\src\\gl.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glad\\src\\gl.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glad/src/gl.c",
+  "output": "external/glad/CMakeFiles/glad.dir/src/gl.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\context.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\context.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/context.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/context.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\init.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\init.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/init.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/init.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\input.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\input.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/input.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/input.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\monitor.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\monitor.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/monitor.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/monitor.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\platform.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\platform.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/platform.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/platform.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\vulkan.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\vulkan.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/vulkan.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/vulkan.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\window.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\window.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/window.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/window.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\egl_context.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\egl_context.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/egl_context.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/egl_context.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\osmesa_context.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\osmesa_context.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/osmesa_context.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/osmesa_context.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\null_init.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\null_init.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/null_init.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/null_init.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\null_monitor.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\null_monitor.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/null_monitor.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/null_monitor.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\null_window.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\null_window.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/null_window.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/null_window.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\null_joystick.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\null_joystick.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/null_joystick.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/null_joystick.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_module.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_module.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_module.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_module.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_time.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_time.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_time.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_time.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_thread.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_thread.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_thread.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_thread.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_init.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_init.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_init.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_init.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_joystick.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_joystick.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_joystick.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_joystick.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_monitor.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_monitor.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_monitor.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_monitor.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_window.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\win32_window.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/win32_window.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/win32_window.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/glfw/src",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\wgl_context.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\glfw\\src\\wgl_context.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/glfw/src/wgl_context.c",
+  "output": "external/glfw/src/CMakeFiles/glfw.dir/wgl_context.c.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_demo.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_demo.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_demo.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_demo.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_draw.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_draw.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_draw.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_draw.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_impl_glfw.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_impl_glfw.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_impl_glfw.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_impl_glfw.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_impl_opengl3.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_impl_opengl3.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_impl_opengl3.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_tables.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_tables.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_tables.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_tables.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/imgui",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe  @CMakeFiles/imgui.dir/includes_CXX.rsp -g -o CMakeFiles\\imgui.dir\\imgui_widgets.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\imgui\\imgui_widgets.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/imgui/imgui_widgets.cpp",
+  "output": "external/imgui/CMakeFiles/imgui.dir/imgui_widgets.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/stb",
+  "command": "D:\\Tools\\mingw64\\bin\\g++.exe   -g -o CMakeFiles\\stb.dir\\stb_image.cpp.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\stb\\stb_image.cpp",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/stb/stb_image.cpp",
+  "output": "external/stb/CMakeFiles/stb.dir/stb_image.cpp.obj"
+},
+{
+  "directory": "D:/Workbench_Local/CG/CGSceneModelingProject/build/external/stb",
+  "command": "D:\\Tools\\mingw64\\bin\\gcc.exe   -g -o CMakeFiles\\stb.dir\\stb_vorbis.c.obj -c D:\\Workbench_Local\\CG\\CGSceneModelingProject\\external\\stb\\stb_vorbis.c",
+  "file": "D:/Workbench_Local/CG/CGSceneModelingProject/external/stb/stb_vorbis.c",
+  "output": "external/stb/CMakeFiles/stb.dir/stb_vorbis.c.obj"
+}
+]

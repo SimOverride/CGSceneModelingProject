@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Workbench_Local\CG\CGSceneModelingProject\build\CMakeFiles\6af053ebf24c94c244eff3e1f63a3a7d\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{6A6557D0-4010-32FE-A1DC-5FC351C6C02D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
