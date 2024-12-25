@@ -1,10 +1,10 @@
-#include "render_flag.h"
+#include "editor.h"
 #include <cstdlib>
 #include <iostream>
 
 Options getOptions(int argc, char* argv[]) {
     Options options;
-    options.windowTitle = "Render Flag";
+    options.windowTitle = "Editor";
     options.windowWidth = 540;
     options.windowHeight = 360;
     options.windowResizable = false;
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     Options options = getOptions(argc, argv);
 
     try {
-        RenderFlag app(options);
+        Editor app(options);
         app.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

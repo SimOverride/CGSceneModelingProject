@@ -1,267 +1,314 @@
-// #include <algorithm>
-// #include <iostream>
-// #include <limits>
-// #include <unordered_map>
+ #include <algorithm>
+ #include <iostream>
+ #include <limits>
+ #include <unordered_map>
+ #include <fstream>
+ #include <sstream>
 
-// #include <tiny_obj_loader.h>
+ #include "model.h"
 
-// #include "model.h"
+ struct Face {
+     int vi[3];  // 顶点索引
+     int ti[3];  // 材质索引
+     int ni[3];  // 法线索引
+ };
 
-// Model::Model(const std::string& filepath) {
-//     tinyobj::attrib_t attrib;
-//     std::vector<tinyobj::shape_t> shapes;
-//     std::vector<tinyobj::material_t> materials;
+ Model::Model(const std::string& filepath) {
+     LoadObj(filepath);
 
-//     std::string warn, err;
+     computeBoundingBox();
 
-//     std::string::size_type index = filepath.find_last_of("/");
-//     std::string mtlBaseDir = filepath.substr(0, index + 1);
+     initGLResources();
 
-//     if (!tinyobj::LoadObj(
-//             &attrib, &shapes, &materials, &warn, &err, filepath.c_str(), mtlBaseDir.c_str())) {
-//         throw std::runtime_error("load " + filepath + " failure: " + err);
-//     }
+     initBoxGLResources();
 
-//     if (!warn.empty()) {
-//         std::cerr << "Loading model " + filepath + " warnings: " << std::endl;
-//         std::cerr << warn << std::endl;
-//     }
+     GLenum error = glGetError();
+     if (error != GL_NO_ERROR) {
+         cleanup();
+         throw std::runtime_error("OpenGL Error: " + std::to_string(error));
+     }
+ }
 
-//     if (!err.empty()) {
-//         throw std::runtime_error("Loading model " + filepath + " error:\n" + err);
-//     }
+ void Model::LoadObj(const std::string& filepath) {
+     std::ifstream in;
+     in.open(filepath, std::ifstream::in);
+     if (in.fail()) {
+         std::cerr << "Can't open " + filepath << "\n";
+         return;
+     }
 
-//     std::vector<Vertex> vertices;
-//     std::vector<uint32_t> indices;
-//     std::unordered_map<Vertex, uint32_t> uniqueVertices;
+     std::string line;
+     std::vector<glm::vec3> verts, norms;
+     std::vector<glm::vec2> texCoords;
+     std::vector<Face> faces;
+     while (!in.eof()) {
+         std::getline(in, line);
+         std::istringstream iss(line.c_str());
 
-//     for (const auto& shape : shapes) {
-//         for (const auto& index : shape.mesh.indices) {
-//             Vertex vertex{};
+         std::string prefix;
+         iss >> prefix;
+         if (prefix == "v") {
+             glm::vec3 v{};
+             iss >> v.x >> v.y >> v.z;
+             verts.push_back(v);
+         }
+         else if (prefix == "vt") {
+             glm::vec2 t{};
+             iss >> t.x >> t.y;
+             texCoords.push_back(t);
+         }
+         else if (prefix == "vn") {
+             glm::vec3 n{};
+             iss >> n.x >> n.y >> n.z;
+             norms.push_back(n);
+         }
+         else if (prefix == "f") {
+             Face f{};
+             for (int i = 0; i < 3; i++) {
+                 std::string vertexStr;
+                 iss >> vertexStr;
 
-//             vertex.position.x = attrib.vertices[3 * index.vertex_index + 0];
-//             vertex.position.y = attrib.vertices[3 * index.vertex_index + 1];
-//             vertex.position.z = attrib.vertices[3 * index.vertex_index + 2];
+                 // 使用正则解析格式
+                 size_t firstSlash = vertexStr.find('/');
+                 size_t secondSlash = vertexStr.find('/', firstSlash + 1);
 
-//             if (index.normal_index >= 0) {
-//                 vertex.normal.x = attrib.normals[3 * index.normal_index + 0];
-//                 vertex.normal.y = attrib.normals[3 * index.normal_index + 1];
-//                 vertex.normal.z = attrib.normals[3 * index.normal_index + 2];
-//             }
+                 if (firstSlash == std::string::npos) {
+                     // 只有顶点索引 v
+                     f.vi[i] = std::stoi(vertexStr) - 1;
+                     f.ti[i] = -1;
+                     f.ni[i] = -1;
+                 }
+                 else if (secondSlash == std::string::npos) {
+                     // 顶点和纹理坐标索引 v/t
+                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     f.ti[i] = std::stoi(vertexStr.substr(firstSlash + 1)) - 1;
+                     f.ni[i] = -1;
+                 }
+                 else if (firstSlash + 1 == secondSlash) {
+                     // v//n
+                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     f.ti[i] = -1;
+                     f.ni[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
+                 }
+                 else {
+                     // v/t/n
+                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     f.ti[i] = std::stoi(vertexStr.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+                     f.ni[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
+                 }
+             }
+             faces.push_back(f);
+         }
+     }
 
-//             if (index.texcoord_index >= 0) {
-//                 vertex.texCoord.x = attrib.texcoords[2 * index.texcoord_index + 0];
-//                 vertex.texCoord.y = attrib.texcoords[2 * index.texcoord_index + 1];
-//             }
+     std::vector<Vertex> vertices;
+     std::vector<uint32_t> indices;
+     std::unordered_map<Vertex, uint32_t> uniqueVertices;
 
-//             // check if the vertex appeared before to reduce redundant data
-//             if (uniqueVertices.count(vertex) == 0) {
-//                 uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-//                 vertices.push_back(vertex);
-//             }
+     for (const auto& f : faces) {
+         for (int i = 0; i < 3; i++) {
+             Vertex vertex{};
+             vertex.position = verts[f.vi[i]];
+             if (f.ni[i] >= 0)
+                 vertex.normal = norms[f.ni[i]];
+             if (f.ti[i] >= 0)
+                 vertex.texCoord = texCoords[f.ti[i]];
 
-//             indices.push_back(uniqueVertices[vertex]);
-//         }
-//     }
+             if (uniqueVertices.count(vertex) == 0) {
+                 uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                 vertices.push_back(vertex);
+             }
 
-//     _vertices = vertices;
-//     _indices = indices;
+             indices.push_back(uniqueVertices[vertex]);
+         }
+     }
 
-//     computeBoundingBox();
+     _vertices = vertices;
+     _indices = indices;
+ }
 
-//     initGLResources();
+ Model::Model(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+     : _vertices(vertices), _indices(indices) {
 
-//     initBoxGLResources();
+     computeBoundingBox();
 
-//     GLenum error = glGetError();
-//     if (error != GL_NO_ERROR) {
-//         cleanup();
-//         throw std::runtime_error("OpenGL Error: " + std::to_string(error));
-//     }
-// }
+     initGLResources();
 
-// Model::Model(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-//     : _vertices(vertices), _indices(indices) {
+     initBoxGLResources();
 
-//     computeBoundingBox();
+     GLenum error = glGetError();
+     if (error != GL_NO_ERROR) {
+         cleanup();
+         throw std::runtime_error("OpenGL Error: " + std::to_string(error));
+     }
+ }
 
-//     initGLResources();
+ Model::Model(Model&& rhs) noexcept
+     : _vertices(std::move(rhs._vertices)), _indices(std::move(rhs._indices)),
+       _boundingBox(std::move(rhs._boundingBox)), _vao(rhs._vao), _vbo(rhs._vbo), _ebo(rhs._ebo),
+       _boxVao(rhs._boxVao), _boxVbo(rhs._boxVbo), _boxEbo(rhs._boxEbo) {
+     _vao = 0;
+     _vbo = 0;
+     _ebo = 0;
+     _boxVao = 0;
+     _boxVbo = 0;
+     _boxEbo = 0;
+ }
 
-//     initBoxGLResources();
+ Model::~Model() {
+     cleanup();
+ }
 
-//     GLenum error = glGetError();
-//     if (error != GL_NO_ERROR) {
-//         cleanup();
-//         throw std::runtime_error("OpenGL Error: " + std::to_string(error));
-//     }
-// }
+ BoundingBox Model::getBoundingBox() const {
+     return _boundingBox;
+ }
 
-// Model::Model(Model&& rhs) noexcept
-//     : _vertices(std::move(rhs._vertices)), _indices(std::move(rhs._indices)),
-//       _boundingBox(std::move(rhs._boundingBox)), _vao(rhs._vao), _vbo(rhs._vbo), _ebo(rhs._ebo),
-//       _boxVao(rhs._boxVao), _boxVbo(rhs._boxVbo), _boxEbo(rhs._boxEbo) {
-//     _vao = 0;
-//     _vbo = 0;
-//     _ebo = 0;
-//     _boxVao = 0;
-//     _boxVbo = 0;
-//     _boxEbo = 0;
-// }
+ void Model::draw() const {
+     glBindVertexArray(_vao);
+     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indices.size()), GL_UNSIGNED_INT, 0);
+     glBindVertexArray(0);
+ }
 
-// Model::~Model() {
-//     cleanup();
-// }
+ void Model::drawBoundingBox() const {
+     glBindVertexArray(_boxVao);
+     glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
+     glBindVertexArray(0);
+ }
 
-// BoundingBox Model::getBoundingBox() const {
-//     return _boundingBox;
-// }
+ GLuint Model::getVao() const {
+     return _vao;
+ }
 
-// void Model::draw() const {
-//     glBindVertexArray(_vao);
-//     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indices.size()), GL_UNSIGNED_INT, 0);
-//     glBindVertexArray(0);
-// }
+ GLuint Model::getBoundingBoxVao() const {
+     return _boxVao;
+ }
 
-// void Model::drawBoundingBox() const {
-//     glBindVertexArray(_boxVao);
-//     glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
-//     glBindVertexArray(0);
-// }
+ size_t Model::getVertexCount() const {
+     return _vertices.size();
+ }
 
-// GLuint Model::getVao() const {
-//     return _vao;
-// }
+ size_t Model::getFaceCount() const {
+     return _indices.size() / 3;
+ }
 
-// GLuint Model::getBoundingBoxVao() const {
-//     return _boxVao;
-// }
+ void Model::initGLResources() {
+     // create a vertex array object
+     glGenVertexArrays(1, &_vao);
+     // create a vertex buffer object
+     glGenBuffers(1, &_vbo);
+     // create a element array buffer
+     glGenBuffers(1, &_ebo);
 
-// size_t Model::getVertexCount() const {
-//     return _vertices.size();
-// }
+     glBindVertexArray(_vao);
+     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+     glBufferData(
+         GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), _vertices.data(), GL_STATIC_DRAW);
 
-// size_t Model::getFaceCount() const {
-//     return _indices.size() / 3;
-// }
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+     glBufferData(
+         GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(uint32_t), _indices.data(),
+         GL_STATIC_DRAW);
 
-// void Model::initGLResources() {
-//     // create a vertex array object
-//     glGenVertexArrays(1, &_vao);
-//     // create a vertex buffer object
-//     glGenBuffers(1, &_vbo);
-//     // create a element array buffer
-//     glGenBuffers(1, &_ebo);
+     // specify layout, size of a vertex, data type, normalize, sizeof vertex array, offset of the
+     // attribute
+     glVertexAttribPointer(
+         0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+     glEnableVertexAttribArray(0);
+     glVertexAttribPointer(
+         1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+     glEnableVertexAttribArray(1);
+     glVertexAttribPointer(
+         2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+     glEnableVertexAttribArray(2);
 
-//     glBindVertexArray(_vao);
-//     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-//     glBufferData(
-//         GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), _vertices.data(), GL_STATIC_DRAW);
+     glBindVertexArray(0);
+ }
 
-//     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-//     glBufferData(
-//         GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(uint32_t), _indices.data(),
-//         GL_STATIC_DRAW);
+ void Model::computeBoundingBox() {
+     float minX = std::numeric_limits<float>::max();
+     float minY = std::numeric_limits<float>::max();
+     float minZ = std::numeric_limits<float>::max();
+     float maxX = -std::numeric_limits<float>::max();
+     float maxY = -std::numeric_limits<float>::max();
+     float maxZ = -std::numeric_limits<float>::max();
 
-//     // specify layout, size of a vertex, data type, normalize, sizeof vertex array, offset of the
-//     // attribute
-//     glVertexAttribPointer(
-//         0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(
-//         1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-//     glEnableVertexAttribArray(1);
-//     glVertexAttribPointer(
-//         2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-//     glEnableVertexAttribArray(2);
+     for (const auto& v : _vertices) {
+         minX = std::min(v.position.x, minX);
+         minY = std::min(v.position.y, minY);
+         minZ = std::min(v.position.z, minZ);
+         maxX = std::max(v.position.x, maxX);
+         maxY = std::max(v.position.y, maxY);
+         maxZ = std::max(v.position.z, maxZ);
+     }
 
-//     glBindVertexArray(0);
-// }
+     _boundingBox.min = glm::vec3(minX, minY, minZ);
+     _boundingBox.max = glm::vec3(maxX, maxY, maxZ);
+ }
 
-// void Model::computeBoundingBox() {
-//     float minX = std::numeric_limits<float>::max();
-//     float minY = std::numeric_limits<float>::max();
-//     float minZ = std::numeric_limits<float>::max();
-//     float maxX = -std::numeric_limits<float>::max();
-//     float maxY = -std::numeric_limits<float>::max();
-//     float maxZ = -std::numeric_limits<float>::max();
+ void Model::initBoxGLResources() {
+     std::vector<glm::vec3> boxVertices = {
+         glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.min.z),
+         glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.min.z),
+         glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.min.z),
+         glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.min.z),
+         glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.max.z),
+         glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.max.z),
+         glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.max.z),
+         glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.max.z),
+     };
 
-//     for (const auto& v : _vertices) {
-//         minX = std::min(v.position.x, minX);
-//         minY = std::min(v.position.y, minY);
-//         minZ = std::min(v.position.z, minZ);
-//         maxX = std::max(v.position.x, maxX);
-//         maxY = std::max(v.position.y, maxY);
-//         maxZ = std::max(v.position.z, maxZ);
-//     }
+     std::vector<uint32_t> boxIndices = {0, 1, 0, 2, 0, 4, 3, 1, 3, 2, 3, 7,
+                                         5, 4, 5, 1, 5, 7, 6, 4, 6, 7, 6, 2};
 
-//     _boundingBox.min = glm::vec3(minX, minY, minZ);
-//     _boundingBox.max = glm::vec3(maxX, maxY, maxZ);
-// }
+     glGenVertexArrays(1, &_boxVao);
+     glGenBuffers(1, &_boxVbo);
+     glGenBuffers(1, &_boxEbo);
 
-// void Model::initBoxGLResources() {
-//     std::vector<glm::vec3> boxVertices = {
-//         glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.min.z),
-//         glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.min.z),
-//         glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.min.z),
-//         glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.min.z),
-//         glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.max.z),
-//         glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.max.z),
-//         glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.max.z),
-//         glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.max.z),
-//     };
+     glBindVertexArray(_boxVao);
+     glBindBuffer(GL_ARRAY_BUFFER, _boxVbo);
+     glBufferData(
+         GL_ARRAY_BUFFER, boxVertices.size() * sizeof(glm::vec3), boxVertices.data(),
+         GL_STATIC_DRAW);
 
-//     std::vector<uint32_t> boxIndices = {0, 1, 0, 2, 0, 4, 3, 1, 3, 2, 3, 7,
-//                                         5, 4, 5, 1, 5, 7, 6, 4, 6, 7, 6, 2};
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _boxEbo);
+     glBufferData(
+         GL_ELEMENT_ARRAY_BUFFER, boxIndices.size() * sizeof(uint32_t), boxIndices.data(),
+         GL_STATIC_DRAW);
 
-//     glGenVertexArrays(1, &_boxVao);
-//     glGenBuffers(1, &_boxVbo);
-//     glGenBuffers(1, &_boxEbo);
+     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+     glEnableVertexAttribArray(0);
 
-//     glBindVertexArray(_boxVao);
-//     glBindBuffer(GL_ARRAY_BUFFER, _boxVbo);
-//     glBufferData(
-//         GL_ARRAY_BUFFER, boxVertices.size() * sizeof(glm::vec3), boxVertices.data(),
-//         GL_STATIC_DRAW);
+     glBindVertexArray(0);
+ }
 
-//     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _boxEbo);
-//     glBufferData(
-//         GL_ELEMENT_ARRAY_BUFFER, boxIndices.size() * sizeof(uint32_t), boxIndices.data(),
-//         GL_STATIC_DRAW);
+ void Model::cleanup() {
+     if (_boxEbo) {
+         glDeleteBuffers(1, &_boxEbo);
+         _boxEbo = 0;
+     }
 
-//     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-//     glEnableVertexAttribArray(0);
+     if (_boxVbo) {
+         glDeleteBuffers(1, &_boxVbo);
+         _boxVbo = 0;
+     }
 
-//     glBindVertexArray(0);
-// }
+     if (_boxVao) {
+         glDeleteVertexArrays(1, &_boxVao);
+         _boxVao = 0;
+     }
 
-// void Model::cleanup() {
-//     if (_boxEbo) {
-//         glDeleteBuffers(1, &_boxEbo);
-//         _boxEbo = 0;
-//     }
+     if (_ebo != 0) {
+         glDeleteBuffers(1, &_ebo);
+         _ebo = 0;
+     }
 
-//     if (_boxVbo) {
-//         glDeleteBuffers(1, &_boxVbo);
-//         _boxVbo = 0;
-//     }
+     if (_vbo != 0) {
+         glDeleteBuffers(1, &_vbo);
+         _vbo = 0;
+     }
 
-//     if (_boxVao) {
-//         glDeleteVertexArrays(1, &_boxVao);
-//         _boxVao = 0;
-//     }
-
-//     if (_ebo != 0) {
-//         glDeleteBuffers(1, &_ebo);
-//         _ebo = 0;
-//     }
-
-//     if (_vbo != 0) {
-//         glDeleteBuffers(1, &_vbo);
-//         _vbo = 0;
-//     }
-
-//     if (_vao != 0) {
-//         glDeleteVertexArrays(1, &_vao);
-//         _vao = 0;
-//     }
-// }
+     if (_vao != 0) {
+         glDeleteVertexArrays(1, &_vao);
+         _vao = 0;
+     }
+ }
