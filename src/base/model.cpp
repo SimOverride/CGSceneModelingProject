@@ -63,41 +63,56 @@
              norms.push_back(n);
          }
          else if (prefix == "f") {
-             Face f{};
-             for (int i = 0; i < 3; i++) {
-                 std::string vertexStr;
-                 iss >> vertexStr;
-
+             int vis[4]{}, tis[4]{}, nis[4]{};
+             
+             std::string vertexStr;
+             int i = 0;
+             while (iss >> vertexStr && i < 4) {  // 处理最多4个顶点
                  // 使用正则解析格式
                  size_t firstSlash = vertexStr.find('/');
                  size_t secondSlash = vertexStr.find('/', firstSlash + 1);
 
                  if (firstSlash == std::string::npos) {
                      // 只有顶点索引 v
-                     f.vi[i] = std::stoi(vertexStr) - 1;
-                     f.ti[i] = -1;
-                     f.ni[i] = -1;
+                     vis[i] = std::stoi(vertexStr) - 1;
+                     tis[i] = -1;
+                     nis[i] = -1;
                  }
                  else if (secondSlash == std::string::npos) {
                      // 顶点和纹理坐标索引 v/t
-                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
-                     f.ti[i] = std::stoi(vertexStr.substr(firstSlash + 1)) - 1;
-                     f.ni[i] = -1;
+                     vis[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     tis[i] = std::stoi(vertexStr.substr(firstSlash + 1)) - 1;
+                     nis[i] = -1;
                  }
                  else if (firstSlash + 1 == secondSlash) {
                      // v//n
-                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
-                     f.ti[i] = -1;
-                     f.ni[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
+                     vis[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     tis[i] = -1;
+                     nis[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
                  }
                  else {
                      // v/t/n
-                     f.vi[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
-                     f.ti[i] = std::stoi(vertexStr.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
-                     f.ni[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
+                     vis[i] = std::stoi(vertexStr.substr(0, firstSlash)) - 1;
+                     tis[i] = std::stoi(vertexStr.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+                     nis[i] = std::stoi(vertexStr.substr(secondSlash + 1)) - 1;
                  }
+                 i++;
              }
-             faces.push_back(f);
+
+             // 如果面包含四个顶点，将其分割为两个三角形
+             if (i == 4) {
+                 // 第一个三角形 v1, v2, v3
+                 Face f1 = { { vis[0], vis[1], vis[2] }, { tis[0], tis[1], tis[2] }, { nis[0], nis[1], nis[2] } };
+                 faces.push_back(f1);
+
+                 // 第二个三角形 v1, v3, v4
+                 Face f2 = { { vis[0], vis[2], vis[3] }, { tis[0], tis[2], tis[3] }, { nis[0], nis[2], nis[3] } };
+                 faces.push_back(f2);
+             }
+             else {
+                 Face f = { { vis[0], vis[1], vis[2] }, { tis[0], tis[1], tis[2] }, { nis[0], nis[1], nis[2] } };
+                 faces.push_back(f);
+             }
          }
      }
 
