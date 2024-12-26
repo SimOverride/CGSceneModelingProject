@@ -9,6 +9,9 @@ public:
 
 	~Editor();
 
+	void handleInput() override;
+
+	void renderFrame() override;
 private:
 	std::unique_ptr<PerspectiveCamera> _camera;
 

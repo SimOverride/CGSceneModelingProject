@@ -18,6 +18,8 @@
 
      virtual ~Model();
 
+     void ExportObj(const std::string& filepath) const;
+
      GLuint getVao() const;
 
      GLuint getBoundingBoxVao() const;
