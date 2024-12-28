@@ -14,10 +14,7 @@ glm::mat4 PerspectiveCamera::getProjectionMatrix() const {
 
 Frustum PerspectiveCamera::getFrustum() const {
     Frustum frustum;
-    // TODO: construct the frustum with the position and orientation of the camera
-    // Note: this is for Bonus project 'Frustum Culling'
-    // write your code here
-    // ----------------------------------------------------------------------
+
     const float halfVSide = zfar * tanf(fovy * .5f);
     const float halfHSide = halfVSide * aspect;
     const glm::vec3 frontMultFar = zfar * transform.getFront();
@@ -28,7 +25,6 @@ Frustum PerspectiveCamera::getFrustum() const {
     frustum.planes[Frustum::RightFace] = { transform.position, glm::normalize(glm::cross(transform.getUp(), frontMultFar + transform.getRight() * halfHSide)) };
     frustum.planes[Frustum::BottomFace] = { transform.position, glm::normalize(glm::cross(transform.getRight(), frontMultFar - transform.getUp() * halfVSide)) };
     frustum.planes[Frustum::TopFace] = { transform.position, glm::normalize(glm::cross(frontMultFar + transform.getUp() * halfVSide, transform.getRight())) };
-    // ----------------------------------------------------------------------
 
     return frustum;
 }

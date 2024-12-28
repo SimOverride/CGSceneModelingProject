@@ -17,10 +17,6 @@ public:
     };
 
     bool intersect(const BoundingBox& aabb, const glm::mat4& modelMatrix) const {
-        // TODO: judge whether the frustum intersects the bounding box
-        // Note: this is for Bonus project 'Frustum Culling'
-        // write your code here
-        // ------------------------------------------------------------
         glm::vec3 vertices[8] = {
             glm::vec3(aabb.min.x, aabb.min.y, aabb.min.z),
             glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z),
@@ -49,7 +45,6 @@ public:
                 return false;
         }
         return true;
-        // ------------------------------------------------------------
     }
 };
 

@@ -2,9 +2,15 @@ cmake_minimum_required(VERSION 3.20)
 
 project(scene_modeling LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(SOURCE_PATH ${CMAKE_SOURCE_DIR}/src)
 set(THIRD_PARTY_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/external)
+set(SHADER_TARGET_PATH ${CMAKE_BINARY_DIR}/media/shader)
 
+file(GLOB PROJECT_SHADERS src/shader/*.vert src/shader/*.geom src/shader/*.frag)
 file(COPY "media/" DESTINATION "media")
 
 add_subdirectory(${THIRD_PARTY_LIBRARY_PATH}/glm)
@@ -38,5 +44,8 @@ target_include_directories(
     ${THIRD_PARTY_LIBRARY_PATH}/imgui
     ${THIRD_PARTY_LIBRARY_PATH}/stb
 )
+
+include("cmake/hardlink_shaders.cmake")
+hardlink_shaders(${PROJECT_NAME} ${SHADER_TARGET_PATH} PROJECT_SHADERS)
 
 target_link_libraries(scene_modeling PUBLIC glm glfw glad imgui stb)

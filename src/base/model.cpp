@@ -13,7 +13,7 @@ struct Face {
     int ni[3];  // ·¨ÏßË÷Òý
 };
 
-Model::Model(const std::string& filepath) {
+Model::Model(const std::string& name, const std::string& filepath) : Object(name) {
     LoadObj(filepath);
 
     computeBoundingBox();
@@ -27,6 +27,42 @@ Model::Model(const std::string& filepath) {
         cleanup();
         throw std::runtime_error("OpenGL Error: " + std::to_string(error));
     }
+}
+
+Model::Model(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+    : Object(name), _vertices(vertices), _indices(indices) {
+
+    computeBoundingBox();
+
+    initGLResources();
+
+    initBoxGLResources();
+
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        cleanup();
+        throw std::runtime_error("OpenGL Error: " + std::to_string(error));
+    }
+}
+
+Model::Model(Model&& rhs) noexcept
+    : Object(name), _vertices(std::move(rhs._vertices)), _indices(std::move(rhs._indices)),
+    _boundingBox(std::move(rhs._boundingBox)), _vao(rhs._vao), _vbo(rhs._vbo), _ebo(rhs._ebo),
+    _boxVao(rhs._boxVao), _boxVbo(rhs._boxVbo), _boxEbo(rhs._boxEbo) {
+    _vao = 0;
+    _vbo = 0;
+    _ebo = 0;
+    _boxVao = 0;
+    _boxVbo = 0;
+    _boxEbo = 0;
+}
+
+Model::~Model() {
+    cleanup();
+}
+
+void Model::renderInspector() {
+    Object::renderInspector();
 }
 
 void Model::LoadObj(const std::string& filepath) {
@@ -198,38 +234,6 @@ void Model::ExportObj(const std::string& filepath) const {
     }
 
     out.close();
-}
-
-Model::Model(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-    : _vertices(vertices), _indices(indices) {
-
-    computeBoundingBox();
-
-    initGLResources();
-
-    initBoxGLResources();
-
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
-        cleanup();
-        throw std::runtime_error("OpenGL Error: " + std::to_string(error));
-    }
-}
-
-Model::Model(Model&& rhs) noexcept
-    : _vertices(std::move(rhs._vertices)), _indices(std::move(rhs._indices)),
-    _boundingBox(std::move(rhs._boundingBox)), _vao(rhs._vao), _vbo(rhs._vbo), _ebo(rhs._ebo),
-    _boxVao(rhs._boxVao), _boxVbo(rhs._boxVbo), _boxEbo(rhs._boxEbo) {
-    _vao = 0;
-    _vbo = 0;
-    _ebo = 0;
-    _boxVao = 0;
-    _boxVbo = 0;
-    _boxEbo = 0;
-}
-
-Model::~Model() {
-    cleanup();
 }
 
 BoundingBox Model::getBoundingBox() const {

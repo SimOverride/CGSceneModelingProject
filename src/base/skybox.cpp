@@ -86,9 +86,6 @@ SkyBox::~SkyBox() {
 }
 
 void SkyBox::draw(const glm::mat4& projection, const glm::mat4& view) {
-    // TODO:: draw skybox
-    // write your code here
-    // -----------------------------------------------
     glDepthFunc(GL_LEQUAL);
     _shader->use();
 
@@ -100,7 +97,6 @@ void SkyBox::draw(const glm::mat4& projection, const glm::mat4& view) {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
-    // -----------------------------------------------
 }
 
 void SkyBox::cleanup() {
