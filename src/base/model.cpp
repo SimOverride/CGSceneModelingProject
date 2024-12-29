@@ -1,9 +1,12 @@
- #include <algorithm>
- #include <iostream>
- #include <limits>
+#include <algorithm>
+#include <iostream>
+#include <limits>
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+
+#include <imgui.h>
 
 #include "model.h"
 
@@ -14,7 +17,7 @@ struct Face {
 };
 
 Model::Model(const std::string& name, const std::string& filepath) : Object(name) {
-    LoadObj(filepath);
+    loadObj(filepath);
 
     computeBoundingBox();
 
@@ -61,11 +64,75 @@ Model::~Model() {
     cleanup();
 }
 
+static char filepathBuffer[128] = "";
+
 void Model::renderInspector() {
     Object::renderInspector();
+    ImGui::NewLine();
+    if (ImGui::Button("Export Obj")) {
+        ImGui::OpenPopup("Export Obj");
+        // 清空输入缓冲区
+        memset(filepathBuffer, 0, sizeof(filepathBuffer));
+    }
+    ImGui::NewLine();
+    ImGui::Text("Material");
+    ImGui::ColorEdit3("Ka", &material.ka[0]);
+    ImGui::ColorEdit3("Kd", &material.kd[0]);
+    ImGui::ColorEdit3("Ks", &material.ks[0]);
+    ImGui::SliderFloat("ns", &material.ns, 1.0f, 50.0f);
+
+    std::vector<std::string> textureList;
+    for (const auto& entry : std::filesystem::recursive_directory_iterator("..\\media\\texture")) {
+        if (entry.is_regular_file()) {
+            std::string extension = entry.path().extension().string();
+            if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
+                textureList.push_back(entry.path().string());
+            }
+        }
+    }
+    
+    static int currentIndex = -1; // -1 未选择材质
+    std::vector<const char*> textureOptions;
+    textureOptions.push_back("None"); // 空材质选项
+    for (const auto& material : textureList) {
+        textureOptions.push_back(material.c_str());
+    }
+
+    if (ImGui::Combo("Texture", &currentIndex, textureOptions.data(), textureOptions.size())) {
+        if (currentIndex == 0) {
+            material.texture.reset();
+        } else {
+            material.texture = std::make_shared<ImageTexture2D>(textureList[currentIndex - 1]);
+        }
+    }
+
+    if (material.texture.get() != nullptr && material.texture->getHandle() != 0) {
+        ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(material.texture->getHandle())), ImVec2(100, 100));
+    } else {
+        ImGui::Text("No Preview Available");
+    }
+
+    if (ImGui::BeginPopupModal("Export Obj", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Enter File Name:");
+        ImGui::InputText("##FileName", filepathBuffer, sizeof(filepathBuffer));
+
+        if (ImGui::Button("OK", ImVec2(220, 0))) {
+            if (strlen(filepathBuffer) > 0) {
+                exportObj("../media/obj" + std::string(filepathBuffer) + ".obj");
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+
+        if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 }
 
-void Model::LoadObj(const std::string& filepath) {
+void Model::loadObj(const std::string& filepath) {
     std::ifstream in;
     in.open(filepath, std::ifstream::in);
     if (!in.is_open()) {
@@ -173,7 +240,7 @@ void Model::LoadObj(const std::string& filepath) {
     in.close();
 }
 
-void Model::ExportObj(const std::string& filepath) const {
+void Model::exportObj(const std::string& filepath) const {
     std::ofstream out(filepath);
     if (!out.is_open()) {
         std::cerr << "Can't open file: " << filepath << std::endl;
@@ -238,6 +305,30 @@ void Model::ExportObj(const std::string& filepath) const {
 
 BoundingBox Model::getBoundingBox() const {
     return _boundingBox;
+}
+
+BoundingBox Model::getTransformedBoundingBox() const {
+    glm::vec3 vertices[8] = {
+            glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.min.z),
+            glm::vec3(_boundingBox.min.x, _boundingBox.min.y, _boundingBox.max.z),
+            glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.min.z),
+            glm::vec3(_boundingBox.min.x, _boundingBox.max.y, _boundingBox.max.z),
+            glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.min.z),
+            glm::vec3(_boundingBox.max.x, _boundingBox.min.y, _boundingBox.max.z),
+            glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.min.z),
+            glm::vec3(_boundingBox.max.x, _boundingBox.max.y, _boundingBox.max.z),
+    };
+
+    glm::vec3 min = glm::vec3(FLT_MAX);
+    glm::vec3 max = glm::vec3(-FLT_MAX);
+
+    for (const auto& vertex : vertices) {
+        glm::vec3 transformedVertex = glm::vec3(transform.getLocalMatrix() * glm::vec4(vertex, 1.0f));
+        min = glm::min(min, transformedVertex);
+        max = glm::max(max, transformedVertex);
+    }
+
+    return { min, max };
 }
 
 void Model::draw() const {

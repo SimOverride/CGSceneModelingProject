@@ -7,9 +7,21 @@
 #include "gl_utility.h"
 #include "object.h"
 #include "vertex.h"
+#include "texture2d.h"
+
+struct Material {
+    glm::vec3 ka = glm::vec3(0.3f, 0.3f, 0.3f);
+    glm::vec3 kd = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 ks = glm::vec3(1.0f, 1.0f, 1.0f);
+    float ns = 10.0f;
+    
+    std::shared_ptr<Texture2D> texture;
+};
 
 class Model : public Object {
 public:
+    Material material;
+
     Model(const std::string& name, const std::string& filepath);
 
     Model(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
@@ -20,7 +32,7 @@ public:
 
     void renderInspector() override;
 
-    void ExportObj(const std::string& filepath) const;
+    void exportObj(const std::string& filepath) const;
 
     GLuint getVao() const;
 
@@ -31,6 +43,8 @@ public:
     size_t getFaceCount() const;
 
     BoundingBox getBoundingBox() const;
+
+    BoundingBox getTransformedBoundingBox() const;
 
     virtual void draw() const;
 
@@ -63,7 +77,7 @@ protected:
     GLuint _boxVbo = 0;
     GLuint _boxEbo = 0;
 
-    void LoadObj(const std::string& filepath);
+    void loadObj(const std::string& filepath);
 
     void computeBoundingBox();
 

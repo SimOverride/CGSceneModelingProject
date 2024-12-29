@@ -11,7 +11,6 @@ const float weight[5] = float[] (
     0.2270270270f, 0.1945945946f, 0.1216216216f, 0.0540540541f, 0.0162162162f);
 
 void main() {
-    // TODO: perform gaussian blur
     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
     vec3 result = texture(image, screenTexCoord).rgb * weight[0]; // current fragment's contribution
     if(horizontal)

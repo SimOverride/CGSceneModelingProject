@@ -4,31 +4,56 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <stb.h>
 
 #include "editor.h"
+#include "base/utils.h"
 
-const std::string geometryVsRelPath = "shader/bonus3/geometry.vert";
-const std::string geometryFsRelPath = "shader/bonus3/geometry.frag";
+const std::string geometryVsRelPath = "shader/geometry.vert";
+const std::string geometryFsRelPath = "shader/geometry.frag";
 
-const std::string ssaoFsRelPath = "shader/bonus3/ssao.frag";
-const std::string ssaoBlurFsRelPath = "shader/bonus3/ssao_blur.frag";
-const std::string ssaoLightingFsRelPath = "shader/bonus3/ssao_lighting.frag";
+const std::string ssaoFsRelPath = "shader/ssao.frag";
+const std::string ssaoBlurFsRelPath = "shader/ssao_blur.frag";
+const std::string ssaoLightingFsRelPath = "shader/ssao_lighting.frag";
 
-const std::string lightVsRelPath = "shader/bonus3/light.vert";
-const std::string lightFsRelPath = "shader/bonus3/light.frag";
+const std::string lightVsRelPath = "shader/light.vert";
+const std::string lightFsRelPath = "shader/light.frag";
 
-const std::string brightColorFsRelPath = "shader/bonus3/extract_bright_color.frag";
-const std::string gaussianBlurFsRelPath = "shader/bonus3/gaussian_blur.frag";
-const std::string blendBloomMapFsRelPath = "shader/bonus3/blend_bloom_map.frag";
+const std::string brightColorFsRelPath = "shader/extract_bright_color.frag";
+const std::string gaussianBlurFsRelPath = "shader/gaussian_blur.frag";
+const std::string blendBloomMapFsRelPath = "shader/blend_bloom_map.frag";
 
-const std::string quadVsRelPath = "shader/bonus3/quad.vert";
-const std::string quadFsRelPath = "shader/bonus3/quad.frag";
+const std::string quadVsRelPath = "shader/quad.vert";
+const std::string quadFsRelPath = "shader/quad.frag";
 
 Editor::Editor(const Options& options) : Application(options) {
     _camera.reset(new PerspectiveCamera(glm::radians(60.0f), 1.0f * _windowWidth / _windowHeight, 0.3f, 1000.0f));
     _camera->transform.position.z = 10.0f;
 
     _ambientLight.reset(new AmbientLight("Ambient Light"));
+
+    PointLight* _pointLight = new PointLight("Point Light");
+    _pointLight->transform.position = glm::vec3(0.0f, 0.0f, 2.5f);
+    _pointLights.push_back(_pointLight);
+
+    _screenQuad.reset(new FullscreenQuad);
+
+    float defaultData[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    _defaultTexture.reset(new Texture2D(GL_RGBA, 1, 1, GL_RGBA, GL_FLOAT, defaultData));
+    _defaultTexture->bind();
+    _defaultTexture->setParamterInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _defaultTexture->setParamterInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _defaultTexture->setParamterInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _defaultTexture->setParamterInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _defaultTexture->unbind();
+
+    initGeometryPassResources();
+
+    initSSAOPassResources();
+
+    initBloomPassResources();
+
+    initShaders();
 
     // init imGUI
     IMGUI_CHECKVERSION();
@@ -46,7 +71,7 @@ Editor::Editor(const Options& options) : Application(options) {
     ImGui::NewFrame();
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     renderScenePanel();
-    ImGui::SetNextWindowPos(ImVec2(_windowWidth * 0.75, 0));
+    ImGui::SetNextWindowPos(ImVec2(_windowWidth * 0.70, 0));
     renderInspectorPanel();
 
     ImGui::Render();
@@ -82,7 +107,31 @@ void Editor::initGeometryPassResources() {
     _gAlbedo->setParamterInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     _gAlbedo->setParamterInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     _gAlbedo->setParamterInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    _gNormal->unbind();
+    _gAlbedo->unbind();
+
+    _gKa.reset(new Texture2D(GL_RGB32F, _windowWidth, _windowHeight, GL_RGB, GL_FLOAT));
+    _gKa->bind();
+    _gKa->setParamterInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _gKa->setParamterInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _gKa->setParamterInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _gKa->setParamterInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _gKa->unbind();
+
+    _gKs.reset(new Texture2D(GL_RGB32F, _windowWidth, _windowHeight, GL_RGB, GL_FLOAT));
+    _gKs->bind();
+    _gKs->setParamterInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _gKs->setParamterInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _gKs->setParamterInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _gKs->setParamterInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _gKs->unbind();
+
+    _gNs.reset(new Texture2D(GL_RGB32F, _windowWidth, _windowHeight, GL_RED, GL_FLOAT));
+    _gNs->bind();
+    _gNs->setParamterInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _gNs->setParamterInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _gNs->setParamterInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _gNs->setParamterInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _gNs->unbind();
 
     _gDepth.reset(new Texture2D(
         GL_DEPTH_COMPONENT, _windowWidth, _windowHeight, GL_DEPTH_COMPONENT, GL_FLOAT));
@@ -94,10 +143,13 @@ void Editor::initGeometryPassResources() {
 
     _gBufferFBO.reset(new Framebuffer);
     _gBufferFBO->bind();
-    _gBufferFBO->drawBuffers({ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 });
+    _gBufferFBO->drawBuffers({ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 });
     _gBufferFBO->attachTexture2D(*_gPosition, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D);
     _gBufferFBO->attachTexture2D(*_gNormal, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D);
     _gBufferFBO->attachTexture2D(*_gAlbedo, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D);
+    _gBufferFBO->attachTexture2D(*_gKa, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D);
+    _gBufferFBO->attachTexture2D(*_gKs, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D);
+    _gBufferFBO->attachTexture2D(*_gNs, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D);
     _gBufferFBO->attachTexture2D(*_gDepth, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D);
 
     if (_gBufferFBO->checkStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -167,7 +219,6 @@ void Editor::initSSAOPassResources() {
     _ssaoNoise->setParamterInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
     _ssaoNoise->unbind();
 
-    // TODO: modify ssao.frag
     _ssaoShader.reset(new GLSLProgram);
     _ssaoShader->attachVertexShaderFromFile(getAssetFullPath(quadVsRelPath));
     _ssaoShader->attachFragmentShaderFromFile(getAssetFullPath(ssaoFsRelPath));
@@ -178,7 +229,6 @@ void Editor::initSSAOPassResources() {
     _ssaoBlurShader->attachFragmentShaderFromFile(getAssetFullPath(ssaoBlurFsRelPath));
     _ssaoBlurShader->link();
 
-    // TODO: modify ssao_lighting.frag
     _ssaoLightingShader.reset(new GLSLProgram);
     _ssaoLightingShader->attachVertexShaderFromFile(getAssetFullPath(quadVsRelPath));
     _ssaoLightingShader->attachFragmentShaderFromFile(getAssetFullPath(ssaoLightingFsRelPath));
@@ -230,13 +280,11 @@ void Editor::initBloomPassResources() {
     _lightShader->attachFragmentShaderFromFile(getAssetFullPath(lightFsRelPath));
     _lightShader->link();
 
-    // TODO: modify extract_bright_color.frag
     _brightColorShader.reset(new GLSLProgram);
     _brightColorShader->attachVertexShaderFromFile(getAssetFullPath(quadVsRelPath));
     _brightColorShader->attachFragmentShaderFromFile(getAssetFullPath(brightColorFsRelPath));
     _brightColorShader->link();
 
-    // TODO: modify gaussian_blur.frag
     _blurShader.reset(new GLSLProgram);
     _blurShader->attachVertexShaderFromFile(getAssetFullPath(quadVsRelPath));
     _blurShader->attachFragmentShaderFromFile(getAssetFullPath(gaussianBlurFsRelPath));
@@ -260,12 +308,21 @@ void Editor::handleInput() {
         glfwSetWindowShouldClose(_window, true);
         return;
     }
-    
+
+    if (ImGui::IsAnyItemActive()) {
+        return;
+    }
+
     constexpr float cameraMoveSpeed = 5.0f;
-    constexpr float cameraRotateSpeed = 0.02f;
+    constexpr float cameraRotateSpeed = 0.1f;
 
     float mouse_movement_in_x_direction = _input.mouse.move.xNow - _input.mouse.move.xOld;
     float mouse_movement_in_y_direction = _input.mouse.move.yNow - _input.mouse.move.yOld;
+    
+    if (_input.keyboard.keyStates[GLFW_KEY_F] != GLFW_RELEASE) {
+        zoomToFit();
+    }
+
     // 平移控制 - 左键拖动
     if (_input.mouse.press.left) {
         // 根据鼠标移动更新相机的位置，使用上下左右方向进行平移
@@ -294,11 +351,11 @@ void Editor::handleInput() {
             _camera->transform.position += cameraMoveSpeed * _deltaTime * _camera->transform.getRight();
         }
 
-        if (_input.keyboard.keyStates[GLFW_KEY_R] != GLFW_RELEASE) {
+        if (_input.keyboard.keyStates[GLFW_KEY_E] != GLFW_RELEASE) {
             _camera->transform.position += cameraMoveSpeed * _deltaTime * _camera->transform.getUp();
         }
 
-        if (_input.keyboard.keyStates[GLFW_KEY_E] != GLFW_RELEASE) {
+        if (_input.keyboard.keyStates[GLFW_KEY_Q] != GLFW_RELEASE) {
             _camera->transform.position -= cameraMoveSpeed * _deltaTime * _camera->transform.getUp();
         }
 
@@ -340,6 +397,157 @@ std::vector<std::string> Editor::getModelFiles() const {
 void Editor::renderScene() {
     glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
 
+    // deferred rendering: geometry pass
+    _gBufferFBO->bind();
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    _gBufferShader->use();
+    _gBufferShader->setUniformMat4("projection", _camera->getProjectionMatrix());
+    _gBufferShader->setUniformMat4("view", _camera->getViewMatrix());
+
+    for (auto* model : _models) {
+        _gBufferShader->setUniformMat4("model", model->transform.getLocalMatrix());
+        _gBufferShader->setUniformVec3("material.ka", model->material.ka);
+        _gBufferShader->setUniformVec3("material.kd", model->material.kd);
+        _gBufferShader->setUniformVec3("material.ks", model->material.ks);
+        _gBufferShader->setUniformFloat("material.ns", model->material.ns);
+        if (model->material.texture.get() != nullptr) {
+            model->material.texture->bind();
+        } else {
+            _defaultTexture->bind();
+        }
+        model->draw();
+    }
+    _gBufferFBO->unbind();
+    
+    // deferred rendering: lighting passes
+    // + SSAO pass
+    if (_enableSSAO) {
+        glDisable(GL_DEPTH_TEST);
+
+        _ssaoFBO->bind();
+
+        _ssaoShader->use();
+        _ssaoShader->setUniformInt("gPosition", 0);
+        _gPosition->bind(0);
+        _ssaoShader->setUniformInt("gNormal", 1);
+        _gNormal->bind(1);
+        _ssaoShader->setUniformInt("gDepth", 2);
+        _gDepth->bind(2);
+        _ssaoShader->setUniformInt("noiseMap", 3);
+        _ssaoNoise->bind(3);
+        for (size_t i = 0; i < _sampleVecs.size(); ++i) {
+            _ssaoShader->setUniformVec3("sampleVecs[" + std::to_string(i) + "]", _sampleVecs[i]);
+        }
+
+        _ssaoShader->setUniformInt("screenWidth", _windowWidth);
+        _ssaoShader->setUniformInt("screenHeight", _windowHeight);
+        _ssaoShader->setUniformFloat("zNear", ((PerspectiveCamera*)_camera.get())->znear);
+        _ssaoShader->setUniformFloat("zFar", ((PerspectiveCamera*)_camera.get())->zfar);
+        _ssaoShader->setUniformMat4("projection", _camera->getProjectionMatrix());
+        _screenQuad->draw();
+
+        _ssaoFBO->unbind();
+
+        _ssaoBlurFBO->bind();
+
+        _currentReadBuffer = 0;
+        _currentWriteBuffer = 1;
+        _ssaoBlurShader->use();
+        for (int pass = 0; pass < 5; ++pass) {
+            _ssaoBlurFBO->attachTexture2D(
+                *_ssaoResult[_currentWriteBuffer], GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D);
+            _ssaoBlurShader->setUniformInt("ssaoResult", 0);
+            _ssaoResult[_currentReadBuffer]->bind(0);
+            _screenQuad->draw();
+
+            std::swap(_currentReadBuffer, _currentWriteBuffer);
+        }
+        
+        _ssaoBlurFBO->unbind();
+    } else {
+        _currentReadBuffer = 0;
+        static const std::vector<float> ones(_windowWidth * _windowHeight, 1.0f);
+        _ssaoResult[0]->bind();
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_R32F, _windowWidth, _windowHeight, 0, GL_RED, GL_FLOAT,
+            ones.data());
+        _ssaoResult[0]->unbind();
+    }
+
+    // + bloom pass
+    _bloomFBO->bind();
+    glDisable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    _ssaoLightingShader->use();
+    
+    _ssaoLightingShader->setUniformVec3("ambientLight.color", _ambientLight->color);
+    _ssaoLightingShader->setUniformFloat("ambientLight.intensity", _ambientLight->intensity);
+    _ssaoLightingShader->setUniformInt("nDirectionalLight", _directionalLights.size());
+   
+    for (size_t i = 0; i < _directionalLights.size(); i++) {
+        _ssaoLightingShader->setUniformVec3("directionalLights[" + std::to_string(i) + "].direction", _directionalLights[i]->transform.getFront());
+        _ssaoLightingShader->setUniformFloat("directionalLights[" + std::to_string(i) + "].intensity", _directionalLights[i]->intensity);
+        _ssaoLightingShader->setUniformVec3("directionalLights[" + std::to_string(i) + "].color", _directionalLights[i]->color);
+    }
+    _ssaoLightingShader->setUniformInt("nPointLight", _pointLights.size());
+    for (size_t i = 0; i < _pointLights.size(); i++) {
+        _ssaoLightingShader->setUniformVec3("pointLights[" + std::to_string(i) + "].position", _pointLights[i]->transform.position);
+        _ssaoLightingShader->setUniformFloat("pointLights[" + std::to_string(i) + "].intensity", _pointLights[i]->intensity);
+        _ssaoLightingShader->setUniformVec3("pointLights[" + std::to_string(i) + "].color", _pointLights[i]->color);
+        _ssaoLightingShader->setUniformFloat("pointLights[" + std::to_string(i) + "].kc", _pointLights[i]->kc);
+        _ssaoLightingShader->setUniformFloat("pointLights[" + std::to_string(i) + "].kq", _pointLights[i]->kq);
+        _ssaoLightingShader->setUniformFloat("pointLights[" + std::to_string(i) + "].kl", _pointLights[i]->kl);
+    }
+    _ssaoLightingShader->setUniformInt("nSpotLight", _spotLights.size());
+    for (size_t i = 0; i < _spotLights.size(); i++) {
+        _ssaoLightingShader->setUniformVec3("spotLights[" + std::to_string(i) + "].position", _spotLights[i]->transform.position);
+        _ssaoLightingShader->setUniformVec3("spotLights[" + std::to_string(i) + "].direction", _spotLights[i]->transform.getFront());
+        _ssaoLightingShader->setUniformFloat("spotLights[" + std::to_string(i) + "].intensity", _spotLights[i]->intensity);
+        _ssaoLightingShader->setUniformVec3("spotLights[" + std::to_string(i) + "].color", _spotLights[i]->color);
+        _ssaoLightingShader->setUniformFloat("spotLights[" + std::to_string(i) + "].angle", _spotLights[i]->angle);
+        _ssaoLightingShader->setUniformFloat("spotLights[" + std::to_string(i) + "].kc", _spotLights[i]->kc);
+        _ssaoLightingShader->setUniformFloat("spotLights[" + std::to_string(i) + "].kq", _spotLights[i]->kq);
+        _ssaoLightingShader->setUniformFloat("spotLights[" + std::to_string(i) + "].kl", _spotLights[i]->kl);
+    }
+    
+    _ssaoLightingShader->setUniformVec3("viewPos", _camera->transform.position);
+
+    _ssaoLightingShader->setUniformInt("gPosition", 0);
+    _gPosition->bind(0);
+    _ssaoLightingShader->setUniformInt("gNormal", 1);
+    _gNormal->bind(1);
+    _ssaoLightingShader->setUniformInt("gAlbedo", 2);
+    _gAlbedo->bind(2);
+    _ssaoLightingShader->setUniformInt("gKa", 3);
+    _gKa->bind(3);
+    _ssaoLightingShader->setUniformInt("gKs", 4);
+    _gKs->bind(4);
+    _ssaoLightingShader->setUniformInt("gNs", 5);
+    _gNs->bind(5);
+    _ssaoLightingShader->setUniformInt("ssaoResult", 6);
+    _ssaoResult[_currentReadBuffer]->bind(6);
+
+    _screenQuad->draw();
+
+    glEnable(GL_DEPTH_TEST);
+
+    _bloomFBO->unbind();
+
+    if (_enableBloom) {
+        extractBrightColor(*_bloomMap);
+        blurBrightColor();
+        combineSceneMapAndBloomBlur(*_bloomMap);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+        _drawScreenShader->use();
+        _drawScreenShader->setUniformInt("frame", 0);
+        _bloomMap->bind(0);
+        _screenQuad->draw();
+    }
+
 }
 
 void Editor::renderUI() {
@@ -364,14 +572,19 @@ void Editor::renderInspectorPanel() {
 
     if (selectedObject != nullptr) {
         selectedObject->renderInspector();
+        if (dynamic_cast<AmbientLight*>(selectedObject) == nullptr && ImGui::Button("Delete Object")) {
+            ImGui::OpenPopup("Delete Object");
+        }
     } else {
         ImGui::Text("No object selected");
     }
 
+    renderPopupModal();
     ImGui::End();
 }
 
 static char objectNameBuffer[128] = "";
+static int lightType = 0;
 
 void Editor::renderScenePanel() {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings;
@@ -381,15 +594,16 @@ void Editor::renderScenePanel() {
         return;
     }
 
-    if (ImGui::CollapsingHeader("Models")) {
+    int itemCount = 0;
+    if (ImGui::CollapsingHeader("Models              ")) {
         for (int i = 0; i < _models.size(); i++) {
-            std::string label = _models[i]->name + "##" + std::to_string(i);
+            std::string label = _models[i]->name + "##" + std::to_string(itemCount++);
             if (ImGui::Selectable(label.c_str(), selectedObject == _models[i])) {
                 selectedObject = _models[i];
             }
         }
 
-        if (ImGui::Button("Add Model")) {
+        if (ImGui::Button("       Add Model       ")) {
             ImGui::OpenPopup("Add Model");
             // 清空输入缓冲区
             memset(objectNameBuffer, 0, sizeof(objectNameBuffer));
@@ -397,16 +611,46 @@ void Editor::renderScenePanel() {
         }
     }
 
-    if (ImGui::CollapsingHeader("Lights")) {
+    if (ImGui::CollapsingHeader("Lights              ")) {
         if (ImGui::Selectable(_ambientLight->name.c_str(), selectedObject == _ambientLight.get())) {
             selectedObject = _ambientLight.get();
         }
+        for (int i = 0; i < _directionalLights.size(); i++) {
+            std::string label = _directionalLights[i]->name + "##" + std::to_string(itemCount++);
+            if (ImGui::Selectable(label.c_str(), selectedObject == _directionalLights[i])) {
+                selectedObject = _directionalLights[i];
+            }
+        }
+        for (int i = 0; i < _pointLights.size(); i++) {
+            std::string label = _pointLights[i]->name + "##" + std::to_string(itemCount++);
+            if (ImGui::Selectable(label.c_str(), selectedObject == _pointLights[i])) {
+                selectedObject = _pointLights[i];
+            }
+        }
+        for (int i = 0; i < _spotLights.size(); i++) {
+            std::string label = _spotLights[i]->name + "##" + std::to_string(itemCount++);
+            if (ImGui::Selectable(label.c_str(), selectedObject == _spotLights[i])) {
+                selectedObject = _spotLights[i];
+            }
+        }
 
-        if (ImGui::Button("Add Light")) {
+        if (ImGui::Button("       Add Light       ")) {
             ImGui::OpenPopup("Add Light");
+            lightType = 0;
             // 清空输入缓冲区
             memset(objectNameBuffer, 0, sizeof(objectNameBuffer));
+            memcpy(objectNameBuffer, "New Light", sizeof("New Light"));
         }
+    }
+
+    ImGui::Separator();
+    ImGui::Checkbox("bloom", &_enableBloom);
+    ImGui::Checkbox("ssao", &_enableSSAO);
+
+    if (_input.keyboard.keyStates[GLFW_KEY_P] != GLFW_RELEASE) {
+        ImGui::OpenPopup("Screen Shot");
+        // 清空输入缓冲区
+        memset(objectNameBuffer, 0, sizeof(objectNameBuffer));
     }
 
     renderPopupModal();
@@ -450,7 +694,162 @@ void Editor::renderPopupModal() {
         }
 
         ImGui::EndPopup();
-    } else if (ImGui::BeginPopupModal("Add Model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    } else if (ImGui::BeginPopupModal("Add Light", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Enter Light Name:");
+        ImGui::InputText("##LightName", objectNameBuffer, sizeof(objectNameBuffer));
 
+        ImGui::RadioButton("Directional Light", &lightType, 0);
+        ImGui::RadioButton("Point Light", &lightType, 1);
+        ImGui::RadioButton("Spot Light", &lightType, 2);
+
+        // 确认按钮
+        if (ImGui::Button("OK", ImVec2(220, 0))) {
+            if (strlen(objectNameBuffer) > 0) {
+                switch (lightType) {
+                case 0:
+                    _directionalLights.push_back(new DirectionalLight(objectNameBuffer));
+                    break;
+                case 1:
+                    _pointLights.push_back(new PointLight(objectNameBuffer));
+                    break;
+                case 2:
+                    _spotLights.push_back(new SpotLight(objectNameBuffer));
+                    break;
+                }
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+
+        // 取消按钮
+        if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    } else if (ImGui::BeginPopupModal("Delete Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        // 确认按钮
+        if (ImGui::Button("OK", ImVec2(220, 0))) {
+            auto it0 = std::remove(_models.begin(), _models.end(), dynamic_cast<Model*>(selectedObject));
+            if (it0 != _models.end()) {
+                _models.erase(it0, _models.end());
+            }
+            auto it1 = std::remove(_directionalLights.begin(), _directionalLights.end(), dynamic_cast<DirectionalLight*>(selectedObject));
+            if (it1 != _directionalLights.end()) {
+                _directionalLights.erase(it1, _directionalLights.end());
+            }
+            auto it2 = std::remove(_pointLights.begin(), _pointLights.end(), dynamic_cast<PointLight*>(selectedObject));
+            if (it2 != _pointLights.end()) {
+                _pointLights.erase(it2, _pointLights.end());
+            }
+            auto it3 = std::remove(_spotLights.begin(), _spotLights.end(), dynamic_cast<SpotLight*>(selectedObject));
+            if (it3 != _spotLights.end()) {
+                _spotLights.erase(it3, _spotLights.end());
+            }
+            delete selectedObject;
+            selectedObject = nullptr;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+
+        // 取消按钮
+        if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    } else if (ImGui::BeginPopupModal("Screen Shot", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Enter File Name:");
+        ImGui::InputText("##FileName", objectNameBuffer, sizeof(objectNameBuffer));
+        // 确认按钮
+        if (ImGui::Button("OK", ImVec2(220, 0)) && strlen(objectNameBuffer) > 0) {
+            captureScreen("../screenshots/" + std::string(objectNameBuffer) + ".png");
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+
+        // 取消按钮
+        if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
     }
+}
+
+void Editor::extractBrightColor(const Texture2D& sceneMap) {
+    _brightColorFBO->bind();
+    _brightColorFBO->attachTexture2D(*_brightColorMap[0], GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D);
+    _brightColorShader->use();
+    _brightColorShader->setUniformInt("sceneMap", 0);
+    sceneMap.bind(0);
+    _screenQuad->draw();
+    _brightColorFBO->unbind();
+}
+
+void Editor::blurBrightColor() {
+    _blurFBO->bind();
+    _blurFBO->drawBuffer(GL_COLOR_ATTACHMENT0);
+    _blurShader->use();
+    bool horizontal = true;
+    _blurShader->setUniformInt("image", 0);
+    _currentReadBuffer = 0;
+    _currentWriteBuffer = 1;
+
+    for (int pass = 0; pass < 20; ++pass) {
+        _blurShader->setUniformBool("horizontal", horizontal);
+        _blurFBO->attachTexture2D(
+            *_brightColorMap[_currentWriteBuffer], GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D);
+        _brightColorMap[_currentReadBuffer]->bind(0);
+        _screenQuad->draw();
+        horizontal = !horizontal;
+        std::swap(_currentReadBuffer, _currentWriteBuffer);
+    }
+
+    _blurFBO->unbind();
+}
+
+void Editor::combineSceneMapAndBloomBlur(const Texture2D& sceneMap) {
+    glDisable(GL_DEPTH_TEST);
+    _blendShader->use();
+
+    _blendShader->setUniformInt("scene", 0);
+    sceneMap.bind(0);
+
+    _blendShader->setUniformInt("bloomBlur", 1);
+    _brightColorMap[_currentReadBuffer]->bind(1);
+
+    _screenQuad->draw();
+}
+
+void Editor::zoomToFit() {
+    if (selectedObject == nullptr) {
+        return;
+    }
+    Model* model = dynamic_cast<Model*>(selectedObject);
+    if (model == nullptr) {
+        return;
+    }
+
+    BoundingBox& bbox = model->getBoundingBox();
+
+    glm::vec3 center = (bbox.max + bbox.min) * 0.5f;
+    float radius = glm::distance(bbox.max, bbox.min) * 0.5f;
+
+    // 计算距离，使目标适合屏幕
+    float marginFactor = 1.1f;
+    float distance = radius / std::tan(_camera->fovy / 2.0f) * marginFactor;
+
+    // 更新相机位置，使相机朝向目标中心
+    _camera->transform.position = center - distance * _camera->transform.getFront();
+    _camera->transform.lookAt(center);
+}
+
+void Editor::captureScreen(const std::string& filepath) const {
+    std::vector<unsigned char> pixels(_windowWidth * _windowHeight * 4);
+
+    // 读取帧缓冲中的像素数据
+    glReadPixels(0, 0, _windowWidth, _windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    stbi_write_png(filepath.c_str(), _windowWidth, _windowHeight, 4, pixels.data(), _windowWidth * 4);
 }

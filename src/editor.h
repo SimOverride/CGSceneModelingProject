@@ -25,9 +25,13 @@ private:
 	std::vector<Model*> _models;
 
 	std::unique_ptr<AmbientLight> _ambientLight;
-	std::vector<Light*> _lights;
+	std::vector<DirectionalLight*> _directionalLights;
+	std::vector<PointLight*> _pointLights;
+	std::vector<SpotLight*> _spotLights;
 
 	Object* selectedObject = nullptr;
+
+	std::unique_ptr<Texture2D> _defaultTexture;
 
 	std::unique_ptr<GLSLProgram> _drawScreenShader;
 	std::unique_ptr<FullscreenQuad> _screenQuad;
@@ -37,6 +41,9 @@ private:
 	std::unique_ptr<Texture2D> _gPosition;
 	std::unique_ptr<Texture2D> _gNormal;
 	std::unique_ptr<Texture2D> _gAlbedo;
+	std::unique_ptr<Texture2D> _gKa;
+	std::unique_ptr<Texture2D> _gKs;
+	std::unique_ptr<Texture2D> _gNs;
 	std::unique_ptr<Texture2D> _gDepth;
 
 	std::unique_ptr<Texture2D> _ssaoNoise;
@@ -65,7 +72,9 @@ private:
 	uint32_t _currentReadBuffer = 0;
 	uint32_t _currentWriteBuffer = 1;
 
-	std::vector<std::string> getModelFiles() const;
+	bool _inRoaming = false;
+	bool _enableBloom = false;
+	bool _enableSSAO = false;
 
 	void initGeometryPassResources();
 	void initSSAOPassResources();
@@ -82,4 +91,8 @@ private:
 	void extractBrightColor(const Texture2D& sceneMap);
 	void blurBrightColor();
 	void combineSceneMapAndBloomBlur(const Texture2D& sceneMap);
+
+	std::vector<std::string> getModelFiles() const;
+	void zoomToFit();
+	void captureScreen(const std::string& filepath) const;
 };

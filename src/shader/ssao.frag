@@ -18,7 +18,6 @@ uniform mat4 projection;
 in vec2 screenTexCoord;
 
 void main() {
-    // TODO: perform SSAO
     vec2 noiseScale = vec2(screenWidth / 4.0, screenHeight / 4.0);
     vec3 fragPos = texture(gPosition, screenTexCoord).xyz;
     vec3 normal = texture(gNormal, screenTexCoord).rgb;
