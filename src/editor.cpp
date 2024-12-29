@@ -7,6 +7,7 @@
 #include <stb.h>
 
 #include "editor.h"
+#include "primitive_factory.h"
 #include "base/utils.h"
 
 const std::string geometryVsRelPath = "shader/geometry.vert";
@@ -15,9 +16,6 @@ const std::string geometryFsRelPath = "shader/geometry.frag";
 const std::string ssaoFsRelPath = "shader/ssao.frag";
 const std::string ssaoBlurFsRelPath = "shader/ssao_blur.frag";
 const std::string ssaoLightingFsRelPath = "shader/ssao_lighting.frag";
-
-const std::string lightVsRelPath = "shader/light.vert";
-const std::string lightFsRelPath = "shader/light.frag";
 
 const std::string brightColorFsRelPath = "shader/extract_bright_color.frag";
 const std::string gaussianBlurFsRelPath = "shader/gaussian_blur.frag";
@@ -30,11 +28,23 @@ Editor::Editor(const Options& options) : Application(options) {
     _camera.reset(new PerspectiveCamera(glm::radians(60.0f), 1.0f * _windowWidth / _windowHeight, 0.3f, 1000.0f));
     _camera->transform.position.z = 10.0f;
 
-    _ambientLight.reset(new AmbientLight("Ambient Light"));
+    Model* ground = PrimitiveFactory::createPlane("Ground", 10, 10, 1, 1);
+    ground->transform.position = glm::vec3(0, -2, 0);
+    _models.push_back(ground);
 
-    PointLight* _pointLight = new PointLight("Point Light");
-    _pointLight->transform.position = glm::vec3(0.0f, 0.0f, 2.5f);
-    _pointLights.push_back(_pointLight);
+    _ambientLight.reset(new AmbientLight("Ambient Light"));
+    _ambientLight->intensity = 0.3f;
+    _ambientLight->color = glm::vec3(0.21f, 0.239f, 0.3135f);
+
+    DirectionalLight* directionalLight = new DirectionalLight("Directional Light");
+    directionalLight->transform.rotation = glm::quat(glm::vec3(glm::radians(-129.0f), glm::radians(-18.0f), 0));
+    directionalLight->color = glm::vec3(1, 0.9568627f, 0.8392157f);
+    _directionalLights.push_back(directionalLight);
+
+    PointLight* pointLight = new PointLight("Point Light");
+    pointLight->transform.position = glm::vec3(-2.21f, 1.18f, 6.68f);
+    pointLight->color = glm::vec3(0.8716981f, 0.4588751f, 0.4588751f);
+    _pointLights.push_back(pointLight);
 
     _screenQuad.reset(new FullscreenQuad);
 
@@ -274,11 +284,6 @@ void Editor::initBloomPassResources() {
     _blurFBO->bind();
     _blurFBO->drawBuffer(GL_COLOR_ATTACHMENT0);
     _blurFBO->unbind();
-
-    _lightShader.reset(new GLSLProgram);
-    _lightShader->attachVertexShaderFromFile(getAssetFullPath(lightVsRelPath));
-    _lightShader->attachFragmentShaderFromFile(getAssetFullPath(lightFsRelPath));
-    _lightShader->link();
 
     _brightColorShader.reset(new GLSLProgram);
     _brightColorShader->attachVertexShaderFromFile(getAssetFullPath(quadVsRelPath));
@@ -584,7 +589,17 @@ void Editor::renderInspectorPanel() {
 }
 
 static char objectNameBuffer[128] = "";
-static int lightType = 0;
+enum LightType {
+    Directional,
+    Point,
+    Spot
+};
+static LightType lightType = Directional;
+enum AddModelOption {
+    OpenFile,
+    PrimitiveShape
+};
+static AddModelOption option = OpenFile;
 
 void Editor::renderScenePanel() {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings;
@@ -605,6 +620,7 @@ void Editor::renderScenePanel() {
 
         if (ImGui::Button("       Add Model       ")) {
             ImGui::OpenPopup("Add Model");
+            option = OpenFile;
             // 清空输入缓冲区
             memset(objectNameBuffer, 0, sizeof(objectNameBuffer));
             memcpy(objectNameBuffer, "New Model", sizeof("New Model"));
@@ -636,7 +652,7 @@ void Editor::renderScenePanel() {
 
         if (ImGui::Button("       Add Light       ")) {
             ImGui::OpenPopup("Add Light");
-            lightType = 0;
+            lightType = Directional;
             // 清空输入缓冲区
             memset(objectNameBuffer, 0, sizeof(objectNameBuffer));
             memcpy(objectNameBuffer, "New Light", sizeof("New Light"));
@@ -645,6 +661,7 @@ void Editor::renderScenePanel() {
 
     ImGui::Separator();
     ImGui::Checkbox("bloom", &_enableBloom);
+    ImGui::SameLine();
     ImGui::Checkbox("ssao", &_enableSSAO);
 
     if (_input.keyboard.keyStates[GLFW_KEY_P] != GLFW_RELEASE) {
@@ -659,37 +676,10 @@ void Editor::renderScenePanel() {
 
 void Editor::renderPopupModal() {
     if (ImGui::BeginPopupModal("Add Model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Enter Model Name:");
-        ImGui::InputText("##ModelName", objectNameBuffer, sizeof(objectNameBuffer));
-
-        static std::string selectedModel = ""; // 保存当前选中的模型名
-        static std::vector<std::string> modelFiles = getModelFiles(); // 获取模型文件列表
-        // 模型选择下拉菜单
-        ImGui::Text("Select Model:");
-        if (ImGui::BeginCombo("##ModelSelector", selectedModel.c_str())) {
-            for (const auto& model : modelFiles) {
-                bool isSelected = (selectedModel == model);
-                if (ImGui::Selectable(model.c_str(), isSelected)) {
-                    selectedModel = model;
-                }
-                if (isSelected) {
-                    ImGui::SetItemDefaultFocus();
-                }
-            }
-            ImGui::EndCombo();
-        }
-
-        // 确认按钮
-        if (ImGui::Button("OK", ImVec2(220, 0))) {
-            if (strlen(objectNameBuffer) > 0 && !selectedModel.empty()) {
-                _models.push_back(new Model(objectNameBuffer, getAssetFullPath("obj/" + selectedModel)));
-            }
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::SameLine();
-
-        // 取消按钮
-        if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+        try {
+            renderAddModelPanel();
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
             ImGui::CloseCurrentPopup();
         }
 
@@ -698,21 +688,21 @@ void Editor::renderPopupModal() {
         ImGui::Text("Enter Light Name:");
         ImGui::InputText("##LightName", objectNameBuffer, sizeof(objectNameBuffer));
 
-        ImGui::RadioButton("Directional Light", &lightType, 0);
-        ImGui::RadioButton("Point Light", &lightType, 1);
-        ImGui::RadioButton("Spot Light", &lightType, 2);
+        ImGui::RadioButton("Directional Light", (int*)&lightType, Directional);
+        ImGui::RadioButton("Point Light", (int*)&lightType, Point);
+        ImGui::RadioButton("Spot Light", (int*)&lightType, Spot);
 
         // 确认按钮
         if (ImGui::Button("OK", ImVec2(220, 0))) {
             if (strlen(objectNameBuffer) > 0) {
                 switch (lightType) {
-                case 0:
+                case Directional:
                     _directionalLights.push_back(new DirectionalLight(objectNameBuffer));
                     break;
-                case 1:
+                case Point:
                     _pointLights.push_back(new PointLight(objectNameBuffer));
                     break;
-                case 2:
+                case Spot:
                     _spotLights.push_back(new SpotLight(objectNameBuffer));
                     break;
                 }
@@ -774,6 +764,162 @@ void Editor::renderPopupModal() {
         }
 
         ImGui::EndPopup();
+    }
+}
+
+void Editor::renderAddModelPanel() {
+    ImGui::Text("Enter Model Name:");
+    ImGui::InputText("##ModelName", objectNameBuffer, sizeof(objectNameBuffer));
+    
+    ImGui::Text("Create Model:");
+    ImGui::RadioButton("Open File", (int*)&option, OpenFile);
+    ImGui::RadioButton("Primitive Shape", (int*)&option, PrimitiveShape);
+
+    static std::string selectedModel = ""; // 保存当前选中的自定义模型名
+    static std::vector<std::string> modelFiles = getModelFiles(); // 获取模型文件列表
+
+    switch (option) {
+    case OpenFile:
+        // 模型选择下拉菜单
+        ImGui::Text("Select Model:");
+        if (ImGui::BeginCombo("##ModelSelector", selectedModel.c_str())) {
+            for (const auto& model : modelFiles) {
+                bool isSelected = (selectedModel == model);
+                if (ImGui::Selectable(model.c_str(), isSelected)) {
+                    selectedModel = model;
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("OK", ImVec2(220, 0))) {
+            if (strlen(objectNameBuffer) > 0 && !selectedModel.empty()) {
+                _models.push_back(new Model(objectNameBuffer, getAssetFullPath("obj/" + selectedModel)));
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        break;
+    case PrimitiveShape:
+        // 基础形状参数
+        static std::string selectedShape = "Plane";
+        static const char* shapes[] = { "Plane", "Cube", "Sphere", "Cylinder", "Cone", "Prism", "Frustum" };
+        ImGui::Text("Select Shape:");
+        if (ImGui::BeginCombo("##ShapeSelector", selectedShape.c_str())) {
+            for (int i = 0; i < IM_ARRAYSIZE(shapes); ++i) {
+                bool isSelected = (selectedShape == shapes[i]);
+                if (ImGui::Selectable(shapes[i], isSelected)) {
+                    selectedShape = shapes[i];
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        // 根据选择的形状动态显示参数
+        if (selectedShape == "Plane") {
+            static float width = 1.0f, height = 1.0f;
+            static int segmentsX = 1, segmentsY = 1;
+            ImGui::InputFloat("Width", &width);
+            ImGui::InputFloat("Height", &height);
+            ImGui::InputInt("Segments X", &segmentsX);
+            ImGui::InputInt("Segments Y", &segmentsY);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createPlane(objectNameBuffer, width, height, segmentsX, segmentsY));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Cube") {
+            static float size = 1.0f;
+            ImGui::InputFloat("Size", &size);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createCube(objectNameBuffer, size));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Sphere") {
+            static float radius = 1.0f;
+            static int sectors = 16, stacks = 16;
+            ImGui::InputFloat("Radius", &radius);
+            ImGui::InputInt("Sectors", &sectors);
+            ImGui::InputInt("Stacks", &stacks);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createSphere(objectNameBuffer, radius, sectors, stacks));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Cylinder") {
+            static float radius = 1.0f, height = 2.0f;
+            static int radialSegments = 16, heightSegments = 1;
+            ImGui::InputFloat("Radius", &radius);
+            ImGui::InputFloat("Height", &height);
+            ImGui::InputInt("Radial Segments", &radialSegments);
+            ImGui::InputInt("Height Segments", &heightSegments);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createCylinder(objectNameBuffer, radius, height, radialSegments, heightSegments));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Cone") {
+            static float radius = 1.0f, height = 2.0f;
+            static int radialSegments = 16;
+            ImGui::InputFloat("Radius", &radius);
+            ImGui::InputFloat("Height", &height);
+            ImGui::InputInt("Radial Segments", &radialSegments);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createCone(objectNameBuffer, radius, height, radialSegments));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Prism") {
+            static float radius = 1.0f, height = 2.0f;
+            static int sides = 3, heightSegments = 1;
+            ImGui::InputFloat("Radius", &radius);
+            ImGui::InputFloat("Height", &height);
+            ImGui::InputInt("Sides", &sides);
+            ImGui::InputInt("Height Segments", &heightSegments);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createPrism(objectNameBuffer, radius, height, sides, heightSegments));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        } else if (selectedShape == "Frustum") {
+            static float bottomRadius = 1.0f, topRadius = 0.5f, height = 2.0f;
+            static int sides = 3, heightSegments = 1;
+            ImGui::InputFloat("Bottom Radius", &bottomRadius);
+            ImGui::InputFloat("Top Radius", &topRadius);
+            ImGui::InputFloat("Height", &height);
+            ImGui::InputInt("Sides", &sides);
+            ImGui::InputInt("Height Segments", &heightSegments, 1, 100);
+
+            if (ImGui::Button("OK", ImVec2(220, 0))) {
+                if (strlen(objectNameBuffer) > 0) {
+                    _models.push_back(PrimitiveFactory::createFrustum(objectNameBuffer, bottomRadius, topRadius, height, sides, heightSegments));
+                }
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        break;
+    }
+    ImGui::SameLine();
+    // 取消按钮
+    if (ImGui::Button("Cancel", ImVec2(220, 0))) {
+        ImGui::CloseCurrentPopup();
     }
 }
 
@@ -851,5 +997,15 @@ void Editor::captureScreen(const std::string& filepath) const {
     // 读取帧缓冲中的像素数据
     glReadPixels(0, 0, _windowWidth, _windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-    stbi_write_png(filepath.c_str(), _windowWidth, _windowHeight, 4, pixels.data(), _windowWidth * 4);
+    std::vector<unsigned char> flippedPixels(_windowWidth * _windowHeight * 4);
+    for (int y = 0; y < _windowHeight; ++y) {
+        std::copy(
+            pixels.begin() + y * _windowWidth * 4,
+            pixels.begin() + (y + 1) * _windowWidth * 4,
+            flippedPixels.begin() + (_windowHeight - 1 - y) * _windowWidth * 4
+        );
+    }
+
+    // 写入 PNG 文件
+    stbi_write_png(filepath.c_str(), _windowWidth, _windowHeight, 4, flippedPixels.data(), _windowWidth * 4);
 }

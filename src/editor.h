@@ -64,7 +64,6 @@ private:
 	std::unique_ptr<Texture2D> _bloomMap;
 	std::unique_ptr<Texture2D> _brightColorMap[2];
 
-	std::unique_ptr<GLSLProgram> _lightShader;
 	std::unique_ptr<GLSLProgram> _brightColorShader;
 	std::unique_ptr<GLSLProgram> _blurShader;
 	std::unique_ptr<GLSLProgram> _blendShader;
@@ -72,7 +71,6 @@ private:
 	uint32_t _currentReadBuffer = 0;
 	uint32_t _currentWriteBuffer = 1;
 
-	bool _inRoaming = false;
 	bool _enableBloom = false;
 	bool _enableSSAO = false;
 
@@ -87,6 +85,7 @@ private:
 	void renderScenePanel();
 	void renderInspectorPanel();
 	void renderPopupModal();
+	void renderAddModelPanel();
 
 	void extractBrightColor(const Texture2D& sceneMap);
 	void blurBrightColor();

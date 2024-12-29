@@ -13,7 +13,7 @@ public:
     void renderInspector() override {
         Object::renderInspector();
         ImGui::NewLine();
-        ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f);
+        ImGui::SliderFloat("Intensity", &intensity, 0.0f, 5.0f);
         ImGui::ColorEdit3("Color", &color[0]);
     }
 };

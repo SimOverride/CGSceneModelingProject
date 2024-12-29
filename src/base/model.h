@@ -13,7 +13,7 @@ struct Material {
     glm::vec3 ka = glm::vec3(0.3f, 0.3f, 0.3f);
     glm::vec3 kd = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 ks = glm::vec3(1.0f, 1.0f, 1.0f);
-    float ns = 10.0f;
+    float ns = 25.0f;
     
     std::shared_ptr<Texture2D> texture;
 };

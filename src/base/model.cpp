@@ -85,7 +85,7 @@ void Model::renderInspector() {
     for (const auto& entry : std::filesystem::recursive_directory_iterator("..\\media\\texture")) {
         if (entry.is_regular_file()) {
             std::string extension = entry.path().extension().string();
-            if (extension == ".png" || extension == ".jpg" || extension == ".hdr") {
+            if (extension == ".png" || extension == ".jpg" || extension == ".hdr" || extension == ".bmp") {
                 textureList.push_back(entry.path().string());
             }
         }
