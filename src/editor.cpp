@@ -24,10 +24,20 @@ const std::string blendBloomMapFsRelPath = "shader/blend_bloom_map.frag";
 const std::string quadVsRelPath = "shader/quad.vert";
 const std::string quadFsRelPath = "shader/quad.frag";
 
+const std::vector<std::string> skyboxTextureRelPaths = {
+    "texture/skybox/Right_Tex.jpg", "texture/skybox/Left_Tex.jpg",  "texture/skybox/Up_Tex.jpg",
+    "texture/skybox/Down_Tex.jpg",  "texture/skybox/Front_Tex.jpg", "texture/skybox/Back_Tex.jpg" };
+
 Editor::Editor(const Options& options) : Application(options) {
     _camera.reset(new PerspectiveCamera(glm::radians(60.0f), 1.0f * _windowWidth / _windowHeight, 0.3f, 1000.0f));
     _camera->transform.position.z = 10.0f;
 
+    std::vector<std::string> skyboxTextureFullPaths;
+    for (size_t i = 0; i < skyboxTextureRelPaths.size(); ++i) {
+        skyboxTextureFullPaths.push_back(getAssetFullPath(skyboxTextureRelPaths[i]));
+    }
+    _skybox.reset(new SkyBox(skyboxTextureFullPaths));
+    
     Model* ground = PrimitiveFactory::createPlane("Ground", 10, 10, 1, 1);
     ground->transform.position = glm::vec3(0, -2, 0);
     _models.push_back(ground);
@@ -424,6 +434,7 @@ void Editor::renderScene() {
         }
         model->draw();
     }
+    _skybox->draw(_camera->getProjectionMatrix(), _camera->getViewMatrix());
     _gBufferFBO->unbind();
     
     // deferred rendering: lighting passes
@@ -552,7 +563,6 @@ void Editor::renderScene() {
         _bloomMap->bind(0);
         _screenQuad->draw();
     }
-
 }
 
 void Editor::renderUI() {

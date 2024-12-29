@@ -49,11 +49,22 @@ SkyBox::SkyBox(const std::vector<std::string>& textureFilenames) {
 
         const char* fsCode =
             "#version 330 core\n"
-            "out vec4 color;\n"
+            "layout(location = 0) out vec3 gPosition;\n"
+            "layout(location = 1) out vec3 gNormal;\n"
+            "layout(location = 2) out vec3 gAlbedo;\n"
+            "layout(location = 3) out vec3 gKa;\n"
+            "layout(location = 4) out vec3 gKs;\n"
+            "layout(location = 5) out float gNs;\n"
+
             "in vec3 texCoord;\n"
             "uniform samplerCube cubemap;\n"
             "void main() {\n"
-            "   color = texture(cubemap, texCoord);\n"
+            "   gPosition = vec3(0.0);\n"
+            "   gNormal = vec3(0.0);\n"
+            "   gAlbedo = texture(cubemap, texCoord).rgb;\n"
+            "   gKa = vec3(0.0);\n"
+            "   gKs = vec3(0.0);\n"
+            "   gNs = 0.0;\n"
             "}\n";
 
         _shader.reset(new GLSLProgram);
@@ -87,6 +98,7 @@ SkyBox::~SkyBox() {
 
 void SkyBox::draw(const glm::mat4& projection, const glm::mat4& view) {
     glDepthFunc(GL_LEQUAL);
+    glDisable(GL_DEPTH_WRITEMASK);
     _shader->use();
 
     _shader->setUniformMat4("projection", projection);
@@ -96,6 +108,7 @@ void SkyBox::draw(const glm::mat4& projection, const glm::mat4& view) {
     glBindVertexArray(_vao);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+    glEnable(GL_DEPTH_WRITEMASK);
     glDepthFunc(GL_LESS);
 }
 

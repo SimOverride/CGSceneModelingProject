@@ -9,6 +9,7 @@
 #include "base/framebuffer.h"
 #include "base/texture2d.h"
 #include "base/model.h"
+#include "base/skybox.h"
 
 class Editor : public Application {
 public:
@@ -21,6 +22,8 @@ public:
 	void renderFrame() override;
 private:
 	std::unique_ptr<PerspectiveCamera> _camera;
+
+	std::unique_ptr<SkyBox> _skybox;
 
 	std::vector<Model*> _models;
 

@@ -91,9 +91,16 @@ void main() {
     float ns = texture(gNs, screenTexCoord).r;
     float occlusion = texture(ssaoResult, screenTexCoord).x;
     vec3 viewDir = normalize(viewPos - position);
-
+    
+    if (length(position) == 0.0) {
+        // Ìì¿ÕºÐÏñËØ
+        fragColor = vec4(albedo, 1.0);
+        return;
+    }
+    
     vec3 ambient = occlusion * ka * ambientLight.color * ambientLight.intensity;
     vec3 result  = ambient;
+    
     for (int i = 0; i < nDirectionalLight; i++) {
         result += calcDirectionalLight(directionalLights[i], normal, viewDir, albedo, ks, ns);
     }
