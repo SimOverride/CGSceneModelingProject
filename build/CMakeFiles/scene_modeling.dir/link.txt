@@ -1,3 +1,0 @@
-D:\Tools\CMake\bin\cmake.exe -E rm -f CMakeFiles\scene_modeling.dir/objects.a
-D:\Tools\mingw64\bin\ar.exe qc CMakeFiles\scene_modeling.dir/objects.a @CMakeFiles\scene_modeling.dir\objects1.rsp
-D:\Tools\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\scene_modeling.dir/objects.a -Wl,--no-whole-archive -o bin\scene_modeling.exe -Wl,--out-implib,libscene_modeling.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\scene_modeling.dir\linkLibs.rsp
